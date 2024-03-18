@@ -171,7 +171,7 @@ def read_bam(f, c, s, index_file):
                 a["-"] = [0] * (end - start)
                 junctions["-"] = OrderedDict()
 
-        if index_file is None:
+        if (index_file is None OR index_file==""):
                 samfile = pysam.AlignmentFile(f)
         else:
                 samfile = pysam.AlignmentFile(f, index_filename=index_file)
