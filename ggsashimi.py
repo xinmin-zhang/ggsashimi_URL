@@ -201,6 +201,8 @@ def read_bam(f, c, s):
 def get_bam_path(index, path):
         if os.path.isabs(path):
                 return path
+        if "http" in path:
+                return path
         base_dir = os.path.dirname(index)
         return os.path.join(base_dir, path)
 
@@ -672,8 +674,6 @@ if __name__ == "__main__":
         if args.junctions_bed != "": junctions_list = []
 
         for id, bam, overlay_level, color_level, label_text in read_bam_input(args.bam, args.overlay, args.color_factor, args.labels):
-                if not os.path.isfile(bam):
-                        continue
                 a, junctions = read_bam(bam, args.coordinates, args.strand)
                 if a.keys() == ["+"] and all(map(lambda x: x==0, list(a.values()[0]))):
                         print("WARN: Sample {} has no reads in the specified area.".format(id))
