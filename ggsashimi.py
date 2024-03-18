@@ -68,7 +68,7 @@ def define_options():
                 help="Shrink the junctions by a factor for nicer display [default=%(default)s]")
         parser.add_argument("-O", "--overlay", type=int,
                 help="Index of column with overlay levels (1-based)")
-        parser.add_argument("-I", "--index", type=int,
+        parser.add_argument("-I", "--index", type=int, dest="index", default=0,
                 help="Index of column with bam index file (1-based)")
         parser.add_argument("-A", "--aggr", type=str, default="",
                 help="""Aggregate function for overlay: <mean> <median> <mean_j> <median_j>.
@@ -171,7 +171,7 @@ def read_bam(f, c, s, index_file):
                 a["-"] = [0] * (end - start)
                 junctions["-"] = OrderedDict()
 
-        if (index_file is None OR index_file==""):
+        if (index_file is None or index_file==""):
                 samfile = pysam.AlignmentFile(f)
         else:
                 samfile = pysam.AlignmentFile(f, index_filename=index_file)
