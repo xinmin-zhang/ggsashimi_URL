@@ -68,6 +68,8 @@ def define_options():
                 help="Shrink the junctions by a factor for nicer display [default=%(default)s]")
         parser.add_argument("-O", "--overlay", type=int,
                 help="Index of column with overlay levels (1-based)")
+        parser.add_argument("-I", "--index", type=int,
+                help="Index of column with bam index file (1-based)")
         parser.add_argument("-A", "--aggr", type=str, default="",
                 help="""Aggregate function for overlay: <mean> <median> <mean_j> <median_j>.
                         Use mean_j | median_j to keep density overlay but aggregate junction counts [default=no aggregation]""")
@@ -158,7 +160,7 @@ def flip_read(s, samflag):
                         return 0
 
 
-def read_bam(f, c, s):
+def read_bam(f, c, s, index_file):
 
         chr, start, end = parse_coordinates(c)
 
@@ -169,7 +171,10 @@ def read_bam(f, c, s):
                 a["-"] = [0] * (end - start)
                 junctions["-"] = OrderedDict()
 
-        samfile = pysam.AlignmentFile(f)
+        if index_file is None:
+                samfile = pysam.AlignmentFile(f)
+        else:
+                samfile = pysam.AlignmentFile(f, index_filename=index_file)
 
         for read in samfile.fetch(chr, start, end):
 
@@ -206,7 +211,7 @@ def get_bam_path(index, path):
         base_dir = os.path.dirname(index)
         return os.path.join(base_dir, path)
 
-def read_bam_input(f, overlay, color, label):
+def read_bam_input(f, overlay, color, label, index):
         if f.endswith(".bam"):
                 bn = f.strip().split("/")[-1].strip(".bam")
                 yield bn, f, None, None, bn
@@ -218,6 +223,7 @@ def read_bam_input(f, overlay, color, label):
                         overlay_level = line_sp[overlay-1] if overlay else None
                         color_level = line_sp[color-1] if color else None
                         label_text = line_sp[label-1] if label else None
+                        index_file = line_sp[index-1] if index else None
                         yield line_sp[0], bam, overlay_level, color_level, label_text
 
 
@@ -673,8 +679,8 @@ if __name__ == "__main__":
         if args.strand != "NONE": bam_dict["-"] = OrderedDict()
         if args.junctions_bed != "": junctions_list = []
 
-        for id, bam, overlay_level, color_level, label_text in read_bam_input(args.bam, args.overlay, args.color_factor, args.labels):
-                a, junctions = read_bam(bam, args.coordinates, args.strand)
+        for id, bam, overlay_level, color_level, label_text, index_file in read_bam_input(args.bam, args.overlay, args.color_factor, args.labels, args.index):
+                a, junctions = read_bam(bam, args.coordinates, args.strand, index_file)
                 if a.keys() == ["+"] and all(map(lambda x: x==0, list(a.values()[0]))):
                         print("WARN: Sample {} has no reads in the specified area.".format(id))
                         continue
