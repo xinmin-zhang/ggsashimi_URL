@@ -68,7 +68,7 @@ def define_options():
                 help="Shrink the junctions by a factor for nicer display [default=%(default)s]")
         parser.add_argument("-O", "--overlay", type=int,
                 help="Index of column with overlay levels (1-based)")
-        parser.add_argument("-I", "--index", type=int, dest="index", default=0,
+        parser.add_argument("-I", "--index", type=int, default=0, dest="index",
                 help="Index of column with bam index file (1-based)")
         parser.add_argument("-A", "--aggr", type=str, default="",
                 help="""Aggregate function for overlay: <mean> <median> <mean_j> <median_j>.
@@ -171,10 +171,12 @@ def read_bam(f, c, s, index_file):
                 a["-"] = [0] * (end - start)
                 junctions["-"] = OrderedDict()
 
-        if (index_file is None or index_file==""):
+        if (index_file is None or index_file=="NA" or index_file==""):
+                print(f)
                 samfile = pysam.AlignmentFile(f)
         else:
-                samfile = pysam.AlignmentFile(f, index_filename=index_file)
+                print(f, index_file)
+                samfile = pysam.AlignmentFile(f, index_filename=index_file, mode="rb")
 
         for read in samfile.fetch(chr, start, end):
 
@@ -201,6 +203,7 @@ def read_bam(f, c, s, index_file):
                         pos = count_operator(CIGAR_op, CIGAR_len, pos, start, end, a[read_strand], junctions[read_strand])
 
         samfile.close()
+        print("finished", f)
         return a, junctions
 
 def get_bam_path(index, path):
@@ -224,7 +227,7 @@ def read_bam_input(f, overlay, color, label, index):
                         color_level = line_sp[color-1] if color else None
                         label_text = line_sp[label-1] if label else None
                         index_file = line_sp[index-1] if index else None
-                        yield line_sp[0], bam, overlay_level, color_level, label_text
+                        yield line_sp[0], bam, overlay_level, color_level, label_text, index_file
 
 
 def prepare_for_R(a, junctions, c, m):
