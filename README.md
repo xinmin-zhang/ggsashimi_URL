@@ -1,6 +1,6 @@
 # ggsashimi
 
-**Updates from original GitHub Repo
+**Updates from original GitHub Repo**
 
 Updated the code and conda environment so remote bam (from URL or S3) can be accessed. The bam index file location can be specified if needed. 
 
