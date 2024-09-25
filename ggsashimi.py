@@ -1037,12 +1037,13 @@ if __name__ == "__main__":
                         ggsave("%(out)s", plot = argrobs, device = "tiff", width = width, height = height, units = "in", dpi = %(out_resolution)s, compression = "lzw", limitsize = FALSE)
                 } else {
                         ggsave("%(out)s", plot = argrobs, device = "%(out_format)s", width = width, height = height, units = "in", dpi = %(out_resolution)s, limitsize = FALSE)
+                        ggsave("%(out_png)s", plot = argrobs, device = "png", width = width, height = height, units = "in", dpi = 100, limitsize = FALSE)
                 }
-
                 dev.log = dev.off()
 
                 """ %({
                         "out": "%s.%s" % (out_prefix, out_suffix),
+                        "out_png": "%s.%s" % (out_prefix, "png"),
                         "out_format": args.out_format,
                         "out_resolution": args.out_resolution,
                         "args.gtf": float(bool(args.gtf)),
