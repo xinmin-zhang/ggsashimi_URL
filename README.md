@@ -1,5 +1,25 @@
 # ggsashimi
 
+**Updates from original GitHub Repo
+
+Updated the code and conda environment so remote bam (from URL or S3) can be accessed. The bam index file location can be specified if needed. 
+
+Since the plot has alignment issues with new R, we use debug mode to produce R script, then use R from old conda to produce the plot. 
+Please install two conda environment use the yml files in the conda folder (env-r3.4.1.yml and ggsashimi_new.yml). An example run is shown below. 
+```shell
+conda activate ggsashimi_new
+annotation="Your_Path/Human.GRCh38.v34.l1_5.ERCC.transcript.gtf.gz"  
+colortxt="/Your_Path/color.txt" 
+bam="/Your_Path/ProjectA_Drug1_vs_DMSO_Bamfiles.txt" 
+#generate R script, the chromosome location below should be region of interest around the splicing site. 
+time GGSASHIMI_DEBUG=yes ggsashimi.py -b $bam -c chr14:77286743-77288831 -g $annotation -M 5 -C 3 -O 3 -A mean_j --fix-y-scale  \
+	--shrink --alpha 0.25 --base-size=20 --ann-height=4 --height=3 --width=18 -P $colortxt -o "ProjectA_Drug1_vs_DMSO"
+#now use old R for plot
+conda activate ggsashimi-r3.4 
+time Rscript R_script
+#check the output: ProjectA_Drug1_vs_DMSO.png and ProjectA_Drug1_vs_DMSO.pdf
+```
+
 [![Build Status](https://github.com/guigolab/ggsashimi/workflows/CI/badge.svg)](https://github.com/guigolab/ggsashimi/actions)
 
 Command-line tool for the visualization of splicing events across multiple samples
